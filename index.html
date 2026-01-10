@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hypothesis Testing & Confidence Intervals Quiz - Chapter 7</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            margin-top: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-content {
+            padding: 30px;
+        }
+
+        .question-card {
+            margin-bottom: 30px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            background: #f5576c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #f093fb;
+            background: #fff5fd;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #f093fb;
+            background: #ffe6f7;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+            animation: correctPulse 0.5s ease;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+            animation: incorrectShake 0.5s ease;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option-label {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #f093fb;
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .option.correct .option-label {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .option.incorrect .option-label {
+            background: #f44336;
+            color: white;
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .results h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            position: relative;
+        }
+
+        .score-circle.excellent {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .score-circle.good {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .score-circle.average {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+
+        .score-circle.poor {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .score-label {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-box {
+            padding: 20px;
+            border-radius: 12px;
+            background: #f5f5f5;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .message {
+            font-size: 18px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .score-circle {
+                width: 150px;
+                height: 150px;
+                font-size: 36px;
+            }
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 60px 30px;
+        }
+
+        .start-screen h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .quiz-info {
+            background: #fff5fd;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .quiz-info-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            font-size: 16px;
+            color: #555;
+        }
+
+        .quiz-info-item strong {
+            color: #f5576c;
+            margin-right: 10px;
+            min-width: 120px;
+        }
+
+        .icon {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Hypothesis Testing Quiz</h1>
+            <p>Chapter 7: Hypothesis Testing & Confidence Intervals</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div id="startScreen" class="start-screen">
+            <h2>Welcome to Chapter 7 Quiz!</h2>
+            <div class="quiz-info">
+                <div class="quiz-info-item">
+                    <span class="icon">📝</span>
+                    <strong>Total Questions:</strong> 10 Multiple Choice Questions
+                </div>
+                <div class="quiz-info-item">
+                    <span class="icon">⏱️</span>
+                    <strong>Time Limit:</strong> No time limit - Take your time!
+                </div>
+                <div class="quiz-info-item">
+                    <span class="icon">✅</span>
+                    <strong>Passing Score:</strong> 60% and above
+                </div>
+                <div class="quiz-info-item">
+                    <span class="icon">💡</span>
+                    <strong>Feedback:</strong> Instant feedback on each answer
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="startQuiz()" style="padding: 15px 40px; font-size: 18px;">
+                Start Quiz
+            </button>
+        </div>
+
+        <div id="quizContent" class="quiz-content" style="display: none;">
+            <div class="question-card" id="questionCard"></div>
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" disabled>
+                    ← Previous
+                </button>
+                <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+                    Next →
+                </button>
+            </div>
+        </div>
+
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "A quality control expert is required to estimate the mean thickness of aluminum sheets used in the production of airframes. A sample of 100 sheets reveals a mean of 0.048 inches with a standard deviation of 0.01 inches. The 99 per cent confidence interval is _____.",
+                options: ["(0.0454, 0.0506)", "(0.1464, 0.1516)", "(0.6545, 0.8478)", "(0.0641, 0.0825)"],
+                correct: 0
+            },
+            {
+                q: "The point where the Null Hypothesis gets rejected is called as?",
+                options: ["Significant Value", "Rejection Value", "Acceptance Value", "Critical Value"],
+                correct: 3
+            },
+            {
+                q: "In a random sample of 180 workers exposed to a certain amount of radiation, 19 experienced some ill effects. 99% confidence interval for the corresponding true percentage is__________",
+                options: ["(0.0512, 0.1732)", "(0.0466, 0.1646)", "(0.4660, 0.1646)", "(0.5120, 0.1732)"],
+                correct: 1
+            },
+            {
+                q: "A random sample of 300 shoppers at a supermarket includes 204 who regularly uses cents off coupons. In another sample of 500 shoppers at a supermarket includes 75 who regularly uses cents off coupons. Obtain 95% confidence limits for the difference in the population proportions.",
+                options: ["(0.469, 0.591)", "(0.053, 0.968)", "(0.591, 0.947)", "(0.875, 1.435)"],
+                correct: 0
+            },
+            {
+                q: "In a random sample of 160 Worker exposed to a certain amount of radiation, 24 experienced some ill effects. What is a 95% confidence limit interval for corresponding true percentage?",
+                options: ["(0.0947, 0.2053)", "(0.947, 0.0205)", "(0.15, 0.85)", "(1.96, 2.58)"],
+                correct: 0
+            },
+            {
+                q: "Before an increase in excise duty on tea, 800 people out of a sample of 1000 were consumers of tea. After an increase in excise duty, 800 people were consumers of tea in a sample of 1200 persons. On the claim of significant decrease in the consumption of tea after the increase in duty what is your alternative hypothesis and value of Z (Test statistics)?",
+                options: ["p₁ = p₂, Z = 2.64", "P₁ = P₂, Z = 6.84", "p₁ < p₂, Z = 6.84", "P₁ > P₂, Z = 6.84"],
+                correct: 3
+            },
+            {
+                q: "A random sample of 400 items is found to have a mean of 82 and standard deviation of 18. Confidence limit of 95% is_______",
+                options: ["(69.852, 71.253)", "(80.236, 83.764)", "(91.264, 94.862)", "(22.963, 26.454)"],
+                correct: 1
+            },
+            {
+                q: "A random sample of size 16 has mean 53. The sum of squares of deviations from mean is 150. 95% confidence limits for the mean is ______.",
+                options: ["(49.314, 52.316)", "(51.315, 54.686)", "(51.982, 53.789)", "(50.123, 54.987)"],
+                correct: 1
+            },
+            {
+                q: "A random sample of size 20 has mean 63. The sum of squares of deviations from mean is 180. Then 99% confidence limits for the mean is ______.",
+                options: ["(51.3151, 54.6862)", "(49.3143, 52.3165)", "(61.5595, 74.4405)", "(61.5595, 64.4405)"],
+                correct: 3
+            },
+            {
+                q: "The variance of a Chi Square distribution with sample size 9 is _____.",
+                options: ["2", "4", "10", "16"],
+                correct: 3
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answers = new Array(questions.length).fill(null);
+
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizContent').style.display = 'block';
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            const card = document.getElementById('questionCard');
+            
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            
+            card.innerHTML = `
+                <div class="question-header">
+                    <span class="question-number">Question ${currentQuestion + 1} of ${questions.length}</span>
+                </div>
+                <div class="question-text">${q.q}</div>
+                <div class="options">
+                    ${q.options.map((opt, i) => `
+                        <div class="option ${answers[currentQuestion] === i ? 'selected' : ''} ${answers[currentQuestion] !== null ? 'disabled' : ''}" 
+                             onclick="selectAnswer(${i})">
+                            <span class="option-label">${optionLabels[i]}</span>
+                            <span>${opt}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="feedback" id="feedback"></div>
+            `;
+
+            updateNavigation();
+            updateProgress();
+        }
+
+        function selectAnswer(selected) {
+            if (answers[currentQuestion] !== null) return;
+
+            answers[currentQuestion] = selected;
+            const q = questions[currentQuestion];
+            const isCorrect = selected === q.correct;
+            
+            if (isCorrect) {
+                score++;
+            }
+
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.correct) {
+                    opt.classList.add('correct');
+                } else if (i === selected && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            feedback.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+            feedback.innerHTML = isCorrect 
+                ? '✓ Correct! Well done!' 
+                : `✗ Incorrect. The correct answer is: ${q.options[q.correct]}`;
+
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentQuestion === 0;
+
+            if (currentQuestion === questions.length - 1) {
+                nextBtn.textContent = answers[currentQuestion] !== null ? 'Finish Quiz' : 'Finish Quiz';
+                nextBtn.disabled = answers[currentQuestion] === null;
+            } else {
+                nextBtn.textContent = 'Next →';
+                nextBtn.disabled = answers[currentQuestion] === null;
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContent').style.display = 'none';
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.className = 'results show';
+
+            const percentage = (score / questions.length * 100).toFixed(1);
+            const incorrect = questions.length - score;
+            
+            let grade, message, circleClass;
+            
+            if (percentage >= 90) {
+                grade = 'Excellent!';
+                message = '🎉 Outstanding! You have mastered Hypothesis Testing and Confidence Intervals!';
+                circleClass = 'excellent';
+            } else if (percentage >= 75) {
+                grade = 'Very Good!';
+                message = '👏 Great job! You have a strong understanding of statistical testing!';
+                circleClass = '
