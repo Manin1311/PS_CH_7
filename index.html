@@ -635,4 +635,49 @@
             } else if (percentage >= 75) {
                 grade = 'Very Good!';
                 message = '👏 Great job! You have a strong understanding of statistical testing!';
-                circleClass = '
+                circleClass = 'good';
+            } else if (percentage >= 60) {
+                grade = 'Good!';
+                message = '👍 Well done! You passed, but review the concepts of hypothesis testing for better clarity.';
+                circleClass = 'good';
+            } else if (percentage >= 40) {
+                grade = 'Fair';
+                message = '📚 You need more practice. Focus on understanding null hypothesis, confidence intervals, and test statistics.';
+                circleClass = 'average';
+            } else {
+                grade = 'Needs Improvement';
+                message = '📖 Keep practicing! Review Chapter 7 thoroughly and understand the core concepts of hypothesis testing.';
+                circleClass = 'poor';
+            }
+
+            resultsDiv.innerHTML = `
+                <h2>Quiz Complete!</h2>
+                <div class="score-circle ${circleClass}">
+                    <div>
+                        ${percentage}%
+                        <div class="score-label">${grade}</div>
+                    </div>
+                </div>
+                <div class="stats">
+                    <div class="stat-box">
+                        <div class="stat-value">${score}</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">${incorrect}</div>
+                        <div class="stat-label">Incorrect</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">${questions.length}</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                </div>
+                <div class="message">${message}</div>
+                <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 20px; padding: 15px 40px; font-size: 18px;">
+                    Try Again
+                </button>
+            `;
+        }
+    </script>
+</body>
+</html>
